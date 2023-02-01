@@ -857,8 +857,17 @@ def _get_commands(target: str, flags: str):
     Try adding them as flags in your refresh_compile_commands rather than targets.
     In a moment, Bazel will likely fail to parse.""")
 
+    # if {tags_filter}:
+    #     filter = ""
+    #     print({tags_filter})
+        # for tag in {tags_filter}:
+        #     if filter != "":
+        #         filter += " union "
+        #     filter += f'attr(tags, \'\\b{tag}\\b\',{target})'
+
     # First, query Bazel's C-family compile actions for that configured target
-    target_statment = f'deps(attr(tags, \'\\blibrary\\b\',{target}) union attr(tags, \'\\bbinary\\b\',{target}))'
+    # target_statment = f'deps(attr(tags, \'\\blibrary\\b\',{target}) union attr(tags, \'\\bbinary\\b\',{target}))'
+    target_statment = f'deps({target})'
     if {exclude_external_sources}:
         # For efficiency, have bazel filter out external targets (and therefore actions) before they even get turned into actions or serialized and sent to us. Note: this is a different mechanism than is used for excluding just external headers.
         target_statment = f"filter('^(//|@//)',{target_statment})"
