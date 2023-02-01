@@ -802,6 +802,13 @@ def _convert_compile_commands(aquery_output):
     # Yield as compile_commands.json entries
     header_files_already_written = set()
     for source_files, header_files, compile_command_args in outputs:
+        for i in range(len(compile_command_args)):
+            if (compile_command_args[i] == "-iquote" or compile_command_args[i] == "-I") and _is_external(compile_command_args[i+1]):
+                compile_command_args[i] = "-isystem"
+            elif compile_command_args[i] == "-isystem" and not _is_external(compile_command_args[i+1]):
+                compile_command_args[i] = "-I"
+
+
         # Only emit one entry per header
         # This makes the output vastly smaller, since large size has been a problem for users.
         # e.g. https://github.com/insufficiently-caffeinated/caffeine/pull/577
@@ -821,6 +828,10 @@ def _convert_compile_commands(aquery_output):
                 # Bazel gotcha warning: If you were tempted to use `bazel info execution_root` as the build working directory for compile_commands...search ImplementationReadme.md to learn why that breaks.
                 'directory': os.environ["BUILD_WORKSPACE_DIRECTORY"],
             }
+
+
+def _is_external(path):
+    return path.startswith("external/") or path.find("/bin/external/") != -1
 
 
 def _get_commands(target: str, flags: str):
